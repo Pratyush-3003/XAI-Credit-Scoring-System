@@ -13,31 +13,6 @@ Provide explainability using SHAP and LIME
 Build a full-stack system with FastAPI backend and React frontend
 Enable real-time prediction with explanation
 
-📂 Project Structure
-credit-risk-prediction/
-│
-├── data/
-│   └── loan_ml_ready_dataset.csv
-│
-├── notebooks/
-│   ├── eda.ipynb
-│   ├── model_training.ipynb
-│   ├── explainability.ipynb
-│
-├── models/
-│   ├── lr_model.pkl
-│   ├── xgb_model.pkl
-│   └── scaler.pkl
-│
-├── backend/
-│   └── app.py
-│
-├── frontend/
-│   └── react-app/
-│
-├── sample_data_code.py
-└── README.md
-
 📊 Dataset
 Dataset: Lending Club Loan Data
 Rows: ~2.2 Million
@@ -52,6 +27,7 @@ Credit History Length
 🧹 Data Preprocessing
 Removed irrelevant and leakage columns
 Handled missing values
+
 🤖 Machine Learning Models
 1️⃣ Logistic Regression
 Simple baseline model
@@ -63,12 +39,12 @@ Works well with large datasets
 📈 Model Evaluation
 
 Metrics used:
-
 Accuracy
 Precision
 Recall
 F1 Score
 ROC-AUC
+
 🧠 Explainable AI (XAI)
 SHAP (SHapley Additive Explanations)
 Provides global feature importance
@@ -100,6 +76,7 @@ Higher DTI ratio → Higher default risk
 Lower income → Higher risk
 Longer credit history → Lower risk
 Loan grade strongly correlates with default
+
 💡 Technologies Used
 Python
 Pandas, NumPy
@@ -108,6 +85,7 @@ XGBoost
 SHAP, LIME
 FastAPI
 React
+
 🏁 Future Improvements
 Model optimization & hyperparameter tuning
 Real-time SHAP dashboard
