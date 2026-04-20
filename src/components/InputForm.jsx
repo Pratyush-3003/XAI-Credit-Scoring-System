@@ -74,14 +74,18 @@ const FIELDS = [
   },
 ]
 
-const SAMPLE_DATA = {
-  loanAmount: '25000',
-  annualIncome: '85000',
-  intRate: '13.5',
-  dti: '18.5',
-  ficoScore: '720',
-  empLength: '6',
-}
+const SAMPLE_DATA_LIST = [
+  // Super Prime (Virtually 0% risk)
+  { loanAmount: '5000', annualIncome: '120000', intRate: '4.5', dti: '5.2', ficoScore: '810', empLength: '12' },
+  // Solid Professional (Very low risk)
+  { loanAmount: '12000', annualIncome: '95000', intRate: '6.5', dti: '10.5', ficoScore: '760', empLength: '8' },
+  // Average borrower (Safe/Moderate)
+  { loanAmount: '18000', annualIncome: '65000', intRate: '8.5', dti: '14.0', ficoScore: '720', empLength: '5' },
+  // Slightly elevated DTI but good FICO (Safe)
+  { loanAmount: '20000', annualIncome: '75000', intRate: '9.2', dti: '22.0', ficoScore: '700', empLength: '6' },
+  // The one 'Risky' profile just to show the red state occasionally
+  { loanAmount: '35000', annualIncome: '55000', intRate: '19.5', dti: '31.5', ficoScore: '640', empLength: '2' },
+]
 
 export default function InputForm({ onSubmit, isLoading }) {
   const [form, setForm] = useState({
@@ -97,7 +101,8 @@ export default function InputForm({ onSubmit, isLoading }) {
 
   const loadSample = () => {
     setError('')
-    setForm(SAMPLE_DATA)
+    const randomProfile = SAMPLE_DATA_LIST[Math.floor(Math.random() * SAMPLE_DATA_LIST.length)]
+    setForm(randomProfile)
   }
 
   const handleSubmit = (e) => {
@@ -124,8 +129,9 @@ export default function InputForm({ onSubmit, isLoading }) {
           type="button"
           onClick={loadSample}
           className="text-sm text-accent hover:text-accent-hover font-medium transition-colors cursor-pointer"
+          title="Click again to load a different profile"
         >
-          Load sample data
+          Load random data
         </button>
       </div>
 
