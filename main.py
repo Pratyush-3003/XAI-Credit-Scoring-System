@@ -63,7 +63,9 @@ NUMERIC_INPUTS = [
 _bg = pd.DataFrame(
     np.zeros((50, len(FEATURE_NAMES))), columns=FEATURE_NAMES
 )
-SHAP_EXPLAINER = shap.Explainer(xgb_model, _bg)
+# XGBoost was trained on scaled data, so background must be scaled
+_bg_scaled = pd.DataFrame(scaler.transform(_bg), columns=FEATURE_NAMES)
+SHAP_EXPLAINER = shap.Explainer(xgb_model, _bg_scaled)
 LIME_EXPLAINER = lime.lime_tabular.LimeTabularExplainer(
     training_data=_bg.values,
     feature_names=FEATURE_NAMES,
@@ -271,23 +273,28 @@ def predict(data: LoanInput):
 
         # ── Model selection ──
         model_name = data.model_choice.lower()
+        
+        # Both models were trained on scaled features
+        X_scaled_arr = scaler.transform(X)
+        X_scaled = pd.DataFrame(X_scaled_arr, columns=FEATURE_NAMES)
+        
         if model_name == "logistic_regression":
-            X_scaled = scaler.transform(X)
             prob_default = float(lr_model.predict_proba(X_scaled)[0][1])
             used_model = "Logistic Regression"
         else:
-            prob_default = float(xgb_model.predict_proba(X)[0][1])
+            prob_default = float(xgb_model.predict_proba(X_scaled)[0][1])
             used_model = "XGBoost"
 
         prediction = "Default" if prob_default >= 0.5 else "No Default"
         risk_score  = int(prob_default * 100)
 
         # ── SHAP ──
-        shap_values = SHAP_EXPLAINER(X)
+        # SHAP must evaluate the scaled features!
+        shap_values = SHAP_EXPLAINER(X_scaled)
         sv = shap_values.values[0]                 # shape (200,)
         shap_df = pd.DataFrame({
             "feature":    FEATURE_NAMES,
-            "value":      X.iloc[0].values,
+            "value":      X.iloc[0].values,  # Keep raw values for UI display
             "shap_value": sv,
         })
         top_shap = (
@@ -304,9 +311,14 @@ def predict(data: LoanInput):
         ]
 
         # ── LIME ──
+        def wrapped_predict_proba(x_unscaled_arr):
+            # Scale LIME perturbations before prediction
+            x_scaled_local = scaler.transform(pd.DataFrame(x_unscaled_arr, columns=FEATURE_NAMES))
+            return xgb_model.predict_proba(x_scaled_local)
+
         lime_exp = LIME_EXPLAINER.explain_instance(
-            data_row=X.iloc[0].values,
-            predict_fn=xgb_model.predict_proba,
+            data_row=X.iloc[0].values, # Keep unscaled so LIME rules are readable
+            predict_fn=wrapped_predict_proba,
             num_features=10,
         )
         lime_features = []
